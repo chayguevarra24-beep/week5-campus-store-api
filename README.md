@@ -26,3 +26,4 @@ With thousands of products in the campus store, **cursor-based pagination** (usi
 **First Request (Initial Batch):**
 ```http
 GET /api/v1/products?limit=2&category=stationery&sort=price_asc
+```
