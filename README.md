@@ -1,26 +1,28 @@
-# Activity: Design a Campus Store API
+# Campus Store API Design Document
 
-**Name:** Joyce Anne J. Guevarra  
-**Section:** ACT2  
-**Activity:** Week 5 — Design a Campus Store API
-
-## Scenario
-
-A campus store has thousands of products. Students may retry order requests after connection failures, and two students may attempt to purchase the last item.
-
-The API must handle idempotency, transactions and concurrency, pagination, response DTOs, and API versioning.
+* **Student Name:** Joyce Anne J. Guevarra
+* **Course:** ACT2
+* **Activity:** Week 5 — Design a Campus Store API
 
 ---
 
-# 1. Endpoints & Pagination
+## 1. Endpoints & Pagination
 
-## 1.1 Get One Product
+This section covers retrieving individual products, listing filtered/sorted product catalogs, and creating customer orders.
 
-This endpoint retrieves a specific product by its ID.
+### API Endpoints
+* **Get Single Product:** `GET /api/v1/products/{id}`
+  * *Path Parameter:* `id` (integer) — Unique identifier of the product.
+* **List Products:** `GET /api/v1/products`
+  * *Query Parameters:* `limit` (integer), `cursor` (string), `category` (string), `sort` (string: `price_asc`, `price_desc`, `name_asc`).
+* **Create Order:** `POST /api/v1/orders`
+  * *Body Parameters:* `student_id` (string), `product_id` (integer), `quantity` (integer).
 
-### Request
+### Pagination Choice: Cursor-Based Pagination
+With thousands of products in the campus store, **cursor-based pagination** (using `cursor` and `limit`) is selected over offset-based pagination (`page` and `offset`). Offset-based queries degrade performance on large database tables (`OFFSET 10000` requires scanning previous rows) and lead to duplicate or missed items if new products are added while browsing. Cursors use stable pointers (such as record IDs).
 
+### Example Requests & Responses
+
+**First Request (Initial Batch):**
 ```http
-GET /api/v1/products/101 HTTP/1.1
-Host: api.campusstore.example.com
-Accept: application/json
+GET /api/v1/products?limit=2&category=stationery&sort=price_asc
